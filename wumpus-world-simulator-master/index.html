@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>لعبة wumpus world - لاعبين</title>
+
+    <meta name="author" content="Thiago Ferreira">
+    <meta name="description" content="لعبة عالم الوحش محاكاة بلاعبين">
+    <meta name="keywords" content="wumpus world, simulator, لعبة ذكاء">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="rgba(72, 120, 160, 1)">;
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="img/favicon/manifest.json">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Vendor -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+
+    <!-- Application -->
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body dir="rtl">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="img/favicon/favicon-32x32.png" alt="شعار اللعبة" class="ms-2">
+                لعبة wumpus - لاعبين
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="تبديل التنقل">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-controls">
+                            التحكم
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-objective">
+                            هدف اللعبة
+                        </a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <select data-validation="required" id="select-language" class="selectpicker" data-width="fit" data-style="btn-outline-secondary">
+                        <option value="ar" data-content='<span class="fi fi-tn ms-2"></span> العربية'>العربية</option>
+                        <option value="en_us" data-content='<span class="fi fi-us ms-2"></span> English'>English</option>
+                        <option value="pt_br" data-content='<span class="fi fi-br ms-2"></span> Português'>Português</option>
+                        <option value="fr" data-content='<span class="fi fi-fr ms-2"></span> Français'>Français</option>
+                        <option value="tr_TR" data-content='<span class="fi fi-tr ms-2"></span> Türkçe'>Türkçe</option>
+                        <option value="es_mx" data-content='<span class="fi fi-mx ms-2"></span> Español'>Español</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- شريط التوقيت الأفقي -->
+    <div class="timer-bar-container" id="timer-bar">
+        <div class="timer-bar-info">
+            <div class="timer-bar-label" id="timer-turn-indicator">⏱️ الوقت يجري...</div>
+            <div id="timer-bar-display" class="timer-bar-display">03:00</div>
+        </div>
+        <div class="timer-bar-progress">
+            <div id="timer-bar-fill" class="timer-bar-fill" style="width: 100%"></div>
+        </div>
+        <div class="timer-bar-info">
+            <div class="timer-bar-label">🎯 الهدف:</div>
+            <div class="timer-bar-label" id="gold-counter">ذهب: 0/5</div>
+        </div>
+    </div>
+
+    <!-- منطقة اللعبة الرئيسية -->
+    <div class="game-container">
+        <!-- منطقة اللوحة -->
+        <div class="canvas-container">
+            <canvas id="canvas" width="960" height="512"></canvas>
+        </div>
+        
+        <!-- الشريط الجانبي -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h5 class="mb-0">معلومات اللعبة</h5>
+            </div>
+            <div class="sidebar-content">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="icon-score"></span>
+                        <span class="fw-bold">النقاط:</span>
+                        <span id="score" class="ms-auto fw-bold fs-5">0</span>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="img/arrow-icon.png" alt="سهم" class="me-2" style="width: 20px; height: 20px;">
+                        <span class="fw-bold">السهام:</span>
+                        <span id="arrow" class="ms-auto fw-bold">3</span>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="icon-gold"></span>
+                        <span class="fw-bold">الذهب المتبقي:</span>
+                          <img src="img/gold-icon.png" alt="ذهب" class="me-2" style="width: 20px; height: 20px;">
+                        <span id="gold" class="ms-auto fw-bold">5</span>/5
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">تقدم الذهب:</span>
+                            <span id="gold-progress" class="fw-bold">0%</span>
+                        </div>
+                        <div class="gold-progress-bar">
+                            <div id="gold-progress-fill" class="gold-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="icon-wumpus"></span>
+                        <span class="fw-bold">حالة الوحش:</span>
+                        <span id="wumpus-status" class="ms-auto wumpus-status-alive fw-bold">حي</span>
+                    </div>
+                    
+                    <div class="alert alert-info p-2 mb-3">
+                        <small class="d-block">
+                            <strong>الهدف:</strong> اجمع 5 قطع ذهب للفوز
+                        </small>
+                        <small class="d-block mt-1">
+                            <strong>الوحش:</strong> يمكنك قتله بالسهم
+                        </small>
+                    </div>
+                    
+                    <!-- تم إزالة مربع إزالة الجدران -->
+                    
+                    <div class="mb-3">
+                        <label for="btn-volume" class="form-label">
+                            مستوى الصوت
+                        </label>
+                        <div class="d-flex align-items-center">
+                            <input type="range" min="0.0" max="1.0" value="0.5" step="0.1" class="form-range flex-grow-1" id="btn-volume">
+                        </div>
+                    </div>
+                    
+                    <button data-bs-toggle="modal" data-bs-target="#modal-share" class="btn btn-success w-100 mb-2">
+                        مشاركة اللعبة
+                    </button>
+                    
+                    <button type="button" class="btn btn-primary w-100 mb-2" onclick="restart()">
+                        إعادة تشغيل اللعبة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal - اللاعب يخسر -->
+    <div class="modal fade" tabindex="-1" id="modal-game-over">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">اللاعب خسر!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <img src="img/game_over.jpg" alt="اللاعب خسر" class="img-fluid rounded mb-3" style="max-height: 200px;">
+                        <h3 class="text-danger"> الوحش انتصر! </h3>
+                        <p class="lead text-light">لقد هزمك الوحش في المعركة</p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-dark rounded">
+                                <div class="fs-2 fw-bold text-primary" id="final-score">0</div>
+                                <div class="text-light">النقاط النهائية</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-dark rounded">
+                                <div class="fs-2 fw-bold text-warning" id="final-gold">0</div>
+                                <div class="text-light">ذهب مجمع</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger">
+                        <strong>الوحش هو الفائز!</strong> حاول مرة أخرى وهزم الوحش هذه المرة
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-lg w-100 btn-restart">
+                        المحاولة مرة أخرى
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeout Modal -->
+    <div class="modal fade" tabindex="-1" id="modal-timeout">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">⏱️ انتهى الوقت!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-clock fa-4x text-warning mb-3"></i>
+                        <h3 class="text-danger">انتهى الوقت!</h3>
+                        <p class="lead text-light" id="timeout-reason">لم تتمكن من جمع كل الذهب في الوقت المحدد</p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-dark rounded">
+                                <div class="fs-2 fw-bold text-primary" id="timeout-score">0</div>
+                                <div class="text-light">النقاط النهائية</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-dark rounded">
+                                <div class="fs-2 fw-bold text-warning" id="timeout-gold">0</div>
+                                <div class="text-light">ذهب مجمع</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger">
+                        <strong>الوحش هو الفائز!</strong> حاول مرة أخرى وهزم الوحش في وقت أقل
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-lg w-100 btn-restart">
+                        المحاولة مرة أخرى
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal - اللاعب يفوز -->
+    <div class="modal fade" tabindex="-1" id="modal-win">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">اللاعب فاز!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <img src="img/win.jpg" alt="اللاعب فاز" class="img-fluid rounded mb-3" style="max-height: 200px;">
+                        <h3 class="text-success"> اللاعب انتصر! </h3>
+                        <p class="lead text-light">لقد جمعت كل الذهب وانتصرت على الوحش</p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-dark rounded">
+                                <div class="fs-2 fw-bold text-primary" id="win-score">0</div>
+                                <div class="text-light">النقاط النهائية</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-dark rounded">
+                                <div class="fs-2 fw-bold text-warning" id="win-gold">5</div>
+                                <div class="text-light">ذهب كامل</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        <strong>إنجاز رائع!</strong> لقد هزمت الوحش وجمعت كل الذهب
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success btn-lg w-100 btn-restart">
+                        لعب مرة أخرى
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal fade" tabindex="-1" id="modal-share">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">مشاركة اللعبة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="textarea-link" class="form-label text-light">رابط اللعبة الحالية:</label>
+                        <textarea class="form-control" rows="4" id="textarea-link" readonly></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" onclick="copyLink()">
+                            نسخ الرابط
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Modal -->
+    <div class="modal fade" tabindex="-1" id="modal-controls">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">تعليمات التحكم</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">👤 تحكم اللاعب</h6>
+                                </div>
+                                <div class="card-body bg-dark-blue">
+                                    <ul class="list-group list-group-flush bg-transparent">
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">أسهم الاتجاه:</strong> للتحرك في الخريطة
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Q/E/Z/C:</strong> للحركات القطرية (أعلى يسار/أعلى يمين/أسفل يسار/أسفل يمين)
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Space:</strong> إطلاق السهم لقتل الوحش
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Enter:</strong> جمع الذهب
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Tab:</strong> تبديل الدور إلى الوحش
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">👹 تحكم الوحش</h6>
+                                </div>
+                                <div class="card-body bg-dark-blue">
+                                    <ul class="list-group list-group-flush bg-transparent">
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">الماوس:</strong> انقر على أي خلية للتحرك
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Space/Enter:</strong> تأكيد الحركة
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Escape:</strong> إلغاء الاختيار
+                                        </li>
+                                        <li class="list-group-item bg-transparent border-secondary text-light">
+                                            <strong class="text-sand">Tab:</strong> تبديل الدور إلى اللاعب
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <h6 class="text-dark-brown">نصائح مهمة:</h6>
+                        <ul class="mb-0 text-light">
+                            <li>الوحش يتحرك مثل الملكة في الشطرنج</li>
+                            <li>نطاق سهم اللاعب: 8 مربعات</li>
+                            <li>نطاق هجوم الوحش: 2 مربعات</li>
+                            <li>الهدف: جمع 5 قطع ذهب للفوز</li>
+                            <li>قتل الوحش ليس ضرورياً للفوز</li>
+                            <li>⏱️ الوقت يجري فقط أثناء دور اللاعب</li>
+                            <li>⏸️ الوقت يتوقف أثناء دور الوحش</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Objective Modal -->
+    <div class="modal fade" tabindex="-1" id="modal-objective">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark-brown">
+                    <h5 class="modal-title">هدف اللعبة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-dark-blue">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark-brown">
+                                    <h6 class="mb-0">🎯 الهدف الرئيسي</h6>
+                                </div>
+                                <div class="card-body bg-blue-dark">
+                                    <h3 class="text-center text-sand mb-3">
+                                        جمع 5 قطع ذهب
+                                    </h3>
+                                    <p class="lead text-light">يجب عليك جمع <strong class="text-sand">جميع قطع الذهب الخمسة</strong> الموزعة في الخريطة للفوز باللعبة.</p>
+                                    <div class="alert alert-warning mt-3">
+                                        <small>⏱️ <strong>مهم:</strong> الوقت يجري فقط أثناء دورك! استغل دور الوحش للتخطيط لحركتك القادمة.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">👹 الهدف الثانوي</h6>
+                                </div>
+                                <div class="card-body bg-blue-dark">
+                                    <h3 class="text-center text-sand mb-3">
+                                        قتل الوحش
+                                    </h3>
+                                    <p class="lead text-light">يمكنك قتل الوحش باستخدام السهم (لديك 3 سهام فقط).</p>
+                                    <ul class="text-light">
+                                        <li>نطاق السهم: 8 مربعات</li>
+                                        <li>نسبة النجاح تتناقص مع المسافة</li>
+                                        <li>إذا قتلت الوحش، ستتوقف حركته</li>
+                                        <li>قتل الوحش ليس ضرورياً للفوز</li>
+                                        <li>بعد قتل الوحش، الوقت يجري باستمرار</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">معلومات النظام الزمني</h6>
+                        </div>
+                        <div class="card-body bg-blue-dark">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="text-sand">⏱️ نظام التوقيت</h5>
+                                    <ul class="text-light">
+                                        <li>الوقت الأساسي: 3 دقائق (180 ثانية)</li>
+                                        <li>الوقت يجري فقط أثناء دور اللاعب</li>
+                                        <li>الوقت يتوقف أثناء دور الوحش</li>
+                                        <li>عندما يموت الوحش، الوقت يجري باستمرار</li>
+                                        <li>يمكن تغيير الوقت من الإعدادات</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-sand">🔄 نظام الأدوار</h5>
+                                    <ul class="text-light">
+                                        <li>كل حركة للاعب → تتبدل إلى دور الوحش</li>
+                                        <li>كل حركة للوحش → تتبدل إلى دور اللاعب</li>
+                                        <li>يمكن التبديل يدوياً بـ Tab</li>
+                                        <li>استخدام Tab مفيد للتخطيط</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-info mt-3">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">المخاطر</h6>
+                        </div>
+                        <div class="card-body bg-blue-dark">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="text-sand"> الوحش</h5>
+                                    <ul class="text-light">
+                                        <li>يهاجم اللاعب إذا كان على بعد 2 مربعات أو أقل</li>
+                                        <li>يتحرك مثل الملكة في الشطرنج</li>
+                                        <li>يمكن أن يقتلك إذا وقفت على نفس الخلية</li>
+                                        <li>يمكنك التحرك في 8 اتجاهات (4 أساسية + 4 قطرية)</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-sand"> الحفر</h5>
+                                    <ul class="text-light">
+                                        <li>إذا سقطت في حفرة تخسر مباشرة</li>
+                                        <li>تظهر رائحة حول الحفر (Breeze)</li>
+                                        <li>تجنب الوقوف على الخلايا المجاورة للحفر</li>
+                                        <li>استخدم الحركات القطرية لتجاوز الحفر</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                        فهمت
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/farhadmammadli/bootstrap-select@main/js/bootstrap-select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.messagestore.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.fallbacks.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.language.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.parser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.emitter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.9/jquery.i18n.emitter.bidi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+    <!-- Application -->
+    <script src="js/utils/random-utils.js"></script>
+    <script src="js/utils/array-utils.js"></script>
+    <script src="js/core/resources.js"></script>
+    <script src="js/core/environment.js"></script>
+    <script src="js/core/keys.js"></script>
+    <script src="js/core/player.js"></script>
+    <script src="js/script.js"></script>
+    
+    <!-- Additional Scripts -->
+    <script>
+        function copyLink() {
+            var copyText = document.getElementById("textarea-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("تم نسخ الرابط إلى الحافظة!");
+        }
+        
+        // تحديث شريط تقدم الذهب
+        function updateGoldProgress() {
+            if (env && env.getGoldCollectionPercent) {
+                var percent = env.getGoldCollectionPercent();
+                $("#gold-progress").html(percent + "%");
+                $("#gold-progress-fill").css("width", percent + "%");
+                
+                if (percent === 100) {
+                    $("#gold-progress-fill").css("background", "linear-gradient(90deg, #2ecc71, #27ae60)");
+                }
+            }
+        }
+        
+        // تحديث حالة الوحش
+        function updateWumpusStatus() {
+            if (env) {
+                var isAlive = env.isWumpusAliveFunc ? env.isWumpusAliveFunc() : true;
+                if (isAlive) {
+                    $("#wumpus-status").html("حي").removeClass("wumpus-status-dead").addClass("wumpus-status-alive");
+                } else {
+                    $("#wumpus-status").html("ميت").removeClass("wumpus-status-alive").addClass("wumpus-status-dead");
+                }
+            }
+        }
+        
+        // تحديث حالة التايمر حسب الدور
+        function updateTimerStatus() {
+            if (env && env.getCurrentTurn) {
+                var currentTurn = env.getCurrentTurn();
+                var turnIndicator = document.getElementById('timer-turn-indicator');
+                
+                if (turnIndicator) {
+                    if (currentTurn === 'player') {
+                        turnIndicator.textContent = "⏱️ الوقت يجري... (دور اللاعب)";
+                        turnIndicator.style.color = "#27ae60";
+                    } else {
+                        turnIndicator.textContent = "⏸️ الوقت متوقف (دور الوحش)";
+                        turnIndicator.style.color = "#7f8c8d";
+                    }
+                }
+            }
+        }
+        
+        // تحديث دورياً
+        setInterval(function() {
+            updateGoldProgress();
+            updateWumpusStatus();
+            updateTimerStatus();
+        }, 500);
+        
+        // تعديل displayGameOver في script.js لإضافة الصورة
+        window.displayGameOver = function() {
+            $("#modal-game-over").modal("show");
+            resources.play("game-over", false);
+            resources.stop("theme");
+            
+            // تحديث النقاط في المودال
+            if (player) {
+                $("#final-score").html(player.score);
+                $("#final-gold").html(player.goldCollected);
+            }
+        };
+        
+        // تعديل displayCongratulations في script.js
+        window.displayCongratulations = function() {
+            $("#modal-win").modal("show");
+            resources.play("win", false);
+            resources.stop("theme");
+            
+            // تحديث النقاط في المودال
+            if (player) {
+                $("#win-score").html(player.score);
+                $("#win-gold").html(player.goldCollected);
+            }
+        };
+        
+        // دالة لعرض نافذة المهلة
+        window.displayTimeout = function(reason, score, gold) {
+            $("#timeout-reason").html(reason);
+            $("#timeout-score").html(score);
+            $("#timeout-gold").html(gold);
+            $("#modal-timeout").modal("show");
+            resources.play("game-over", false);
+            resources.stop("theme");
+        };
+    </script>
+</body>
+
+</html>

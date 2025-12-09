@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wumpus Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #333; }
+        canvas { border: 2px solid white; background: black; }
+    </style>
+</head>
+<body>
+    <h1 style="color: white;">🎯 Wumpus World Test</h1>
+    <canvas id="canvas" width="480" height="480"></canvas>
+    
+    <script src="js/utils/array-utils.js"></script>
+    <script src="js/utils/random-utils.js"></script>
+    <script src="js/core/resources.js"></script>
+    
+    <script>
+        // تهيئة resources بسيطة
+        if (!window.resources) {
+            window.resources = {
+                images: {},
+                play: function() {},
+                stop: function() {}
+            };
+        }
+        
+        // تحميل صورة أرضية بسيطة للاختبار
+        var floorImg = new Image();
+        floorImg.onload = function() {
+            resources.images.floor = floorImg;
+            startGame();
+        };
+        floorImg.src = 'img/floor.png';
+        
+        // صورة بديلة إذا فشل التحميل
+        floorImg.onerror = function() {
+            console.log("⚠️ Could not load floor.png, using fallback");
+            createFallbackImage();
+            startGame();
+        };
+        
+        function createFallbackImage() {
+            // إنشاء صورة أرضية بديلة
+            var canvas = document.createElement('canvas');
+            canvas.width = 48;
+            canvas.height = 48;
+            var ctx = canvas.getContext('2d');
+            
+            // رسم مربع بني
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, 0, 48, 48);
+            
+            // إضافة خطوط
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(48, 48);
+            ctx.moveTo(48, 0);
+            ctx.lineTo(0, 48);
+            ctx.stroke();
+            
+            var img = new Image();
+            img.src = canvas.toDataURL();
+            resources.images.floor = img;
+        }
+        
+        function startGame() {
+            console.log("✅ Resources ready, loading game scripts...");
+            
+            // تحميل باقي السكربتات
+            var scripts = [
+                'js/core/environment.js',
+                'js/core/keys.js', 
+                'js/core/player.js',
+                'js/script.js'
+            ];
+            
+            loadScripts(scripts, function() {
+                console.log("🎮 All scripts loaded!");
+                // اللعبة ستبدأ تلقائياً من خلال $(document).ready في script.js
+            });
+        }
+        
+        function loadScripts(urls, callback) {
+            var loaded = 0;
+            
+            urls.forEach(function(src) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.onload = function() {
+                    loaded++;
+                    console.log("✅ Loaded:", src);
+                    if (loaded === urls.length) {
+                        callback();
+                    }
+                };
+                script.onerror = function() {
+                    console.error("❌ Failed to load:", src);
+                    loaded++;
+                    if (loaded === urls.length) {
+                        callback();
+                    }
+                };
+                document.head.appendChild(script);
+            });
+        }
+    </script>
+</body>
+</html>
